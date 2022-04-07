@@ -38,7 +38,7 @@ jobs:
       - name: Run a one-line script
         run: echo Hello, world!
   deploy-preprod:
-    needs: [deploy-stages]
+    needs: [deploy-stage]
     runs-on: ubuntu-latest
     strategy:
       matrix:
