@@ -41,8 +41,15 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo Hello, world!
-  deploy-prod1:
+  pre-prod:
     needs: [deploy-beta, deploy-alpha]
+    runs-on: ubuntu-latest
+    steps:
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+  deploy-prod1:
+    needs: [pre-prod]
     runs-on: ubuntu-latest
     environment: prod1
     steps:
@@ -50,7 +57,7 @@ jobs:
       - name: Run a one-line script
         run: echo Hello, world!
   deploy-prod2:
-    needs: [deploy-beta, deploy-alpha]
+    needs: [pre-prod]
     runs-on: ubuntu-latest
     environment: prod2
     steps:
