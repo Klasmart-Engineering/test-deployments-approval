@@ -29,11 +29,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: ["test-alpha", "test-beta"]
+        include:
+          - environment: test-alpha
+          - environment: test-beta
   deploy-preprod:
     needs: [build]
     runs-on: ubuntu-latest
-    environment: ${{matrix.environment}}
+    environment: ${{ matrix.environment }}
     steps:
       # Runs a single command using the runners shell
       - name: Run a one-line script
