@@ -26,15 +26,13 @@ jobs:
       - name: Run a one-line script
         run: echo Hello, world!
   deploy_preprod:
+    needs: [build]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
           - environment: test-alpha
           - environment: test-beta
-  deploy-preprod:
-    needs: [build]
-    runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
     steps:
       # Runs a single command using the runners shell
