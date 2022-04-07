@@ -2,7 +2,7 @@
 
 name: Deployment_Matrix
 concurrency:
-    group: TestDeployment
+    group: TestDeploymentMatrix
     cancel-in-progress: true
 
 # Controls when the workflow will run
@@ -28,8 +28,21 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo Hello, world!
-  deploy-stage:
+  deploy-ci:
     needs: [build]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - environment: landing-zone
+          - environment: dev-alpha
+    environment: ${{ matrix.environment }}
+    steps:
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+  deploy-stage:
+    needs: [deploy-ci]
     runs-on: ubuntu-latest
     strategy:
       matrix:
