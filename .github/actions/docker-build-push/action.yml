@@ -103,5 +103,5 @@ runs:
 
     - name: Debug - docker build output
       run: |
-        echo ${{ steps.build_push.outputs.metadata }}
+        echo '${{ steps.build_push.outputs.metadata }}'
       shell: bash
