@@ -21,8 +21,9 @@ jobs:
       - name: build stuff
         uses: ./.github/actions/docker-build-push
         with:
-          ecr_repository: myalpine
-          dockerfile_dir: .
+          image_name: myalpine
+          dockerfile: Dockerfile
           platforms: linux/amd64,linux/arm64
+          push_to_registry: false
           ECR_AWS_ACCESS_KEY_ID: ${{ secrets.ECR_AWS_ACCESS_KEY_ID }}
           ECR_AWS_SECRET_ACCESS_KEY: ${{ secrets.ECR_AWS_SECRET_ACCESS_KEY }}

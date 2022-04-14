@@ -2,29 +2,40 @@ name: (Action) docker build & push to ECR
 description: "Action for docker build & push to ECR"
 
 inputs:
-  ecr_repository:
+  image_name:
     required: true
-    description: 'application name'
-  dockerfile_dir:
-    description: 'Directory containing the Dockerfile'
-    required: true
-    default: deploy/
-  dockerfile_name:
+    description: 'application project name'
+  tags:
     required: false
-    description: 'Dockerfile name'
-    default: Dockerfile
-  dockerfile_context:
+    description: 'docker image tags to use. Values are List/CSV. https://github.com/docker/build-push-action#inputs'
+    default: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
+  tags_flavor:
     required: false
-    description: 'Dockerfile build context'
+    description: 'https://github.com/docker/metadata-action#flavor-input'
+    default: |
+      latest=auto
+      prefix=
+      suffix=
+  dockerfile:
+    description: 'path and name of the Dockerfile'
+    required: false
+    default: 'deploy/Dockerfile'
+  docker_build_context:
+    required: false
+    description: 'Docker build context'
     default: .
   platforms:
     required: false
     description: 'The platforms to build the image for. e.g. linux_amd64'
     default: linux/amd64,linux/arm64
-  outputs:
+  push_to_registry:
     required: false
-    description: 'List of output destinations (format: type=local,dest=path)'
-    default: type=registry
+    description: 'Flag for enabling a push to registry. Useful for testing.'
+    default: 'true'
   ecr_aws_region:
     required: false
     description: 'ECR AWS region'
@@ -59,12 +70,9 @@ runs:
       id: meta
       uses: docker/metadata-action@v3
       with:
-        images: "${{ inputs.ecr_registry }}/${{ inputs.ecr_repository }}"
-        tags: |
-          type=schedule
-          type=ref,event=branch
-          type=ref,event=tag
-          type=ref,event=pr
+        images: "${{ inputs.ecr_registry }}/${{ inputs.image_name }}"
+        tags: ${{ inputs.tags }}
+        flavor: ${{ inputs.tags_flavor }}
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -81,10 +89,9 @@ runs:
     - name: Build and push
       uses: docker/build-push-action@v2
       with:
-        context: ${{ inputs.dockerfile_context }}
+        context: ${{ inputs.docker_build_context }}
         platforms: ${{ inputs.platforms }}
-        push: false
-        outputs: type=image,push=false
+        push: ${{ inputs.push_to_registry }}
         tags: ${{ steps.meta.outputs.tags }}
         file: "${{ inputs.dockerfile_dir }}/${{ inputs.dockerfile_name }}"
 
