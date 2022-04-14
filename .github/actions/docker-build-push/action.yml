@@ -99,9 +99,3 @@ runs:
       run: |
         echo ${{ steps.meta.outputs.tags }}
       shell: bash
-
-    - name: Debug - see what we have
-      run: |
-        find build
-      shell: bash
-
