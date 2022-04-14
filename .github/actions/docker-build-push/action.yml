@@ -1,0 +1,96 @@
+name: (Action) docker build & push to ECR
+description: "Action for docker build & push to ECR"
+
+inputs:
+  ecr_repository:
+    required: true
+    description: 'application name'
+  dockerfile_dir:
+    description: 'Directory containing the Dockerfile'
+    required: true
+    default: deploy/
+  dockerfile_name:
+    required: false
+    description: 'Dockerfile name'
+    default: Dockerfile
+  dockerfile_context:
+    required: false
+    description: 'Dockerfile build context'
+    default: .
+  platforms:
+    required: false
+    description: 'The platforms to build the image for. e.g. linux_amd64'
+    default: linux/amd64,linux/arm64
+  outputs:
+    required: false
+    description: 'List of output destinations (format: type=local,dest=path)'
+    default: type=registry
+  ecr_aws_region:
+    required: false
+    description: 'ECR AWS region'
+    default: eu-west-2
+  ecr_registry:
+    required: false
+    description: 'ECR AWS endpoint'
+    default: 942095822719.dkr.ecr.eu-west-2.amazonaws.com
+  ECR_AWS_ACCESS_KEY_ID:
+    required: true
+    description: 'ECR AWS Access Key Id, stored as a secret'
+  ECR_AWS_SECRET_ACCESS_KEY:
+    required: true
+    description: 'ECR AWS Secret Access Key, stored as a secret'
+
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v1
+      with:
+        install: true
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{inputs.ecr_repository}}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ inputs.ECR_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ inputs.ECR_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ inputs.ecr_aws_region }}
+
+    - name: Login to Amazon ECR
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ inputs.ecr_registry }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: ${{ inputs.dockerfile_context }}
+        platforms: ${{ inputs.platforms }}
+        push: false
+        outputs: type=image,name=myalpine,push=false
+        tags: ${{ steps.meta.outputs.tags }}
+        file: "${{ inputs.dockerfile_dir }}/${{ inputs.dockerfile_name }}"
+
+    - name: Debug - metadata output
+      run: |
+        echo ${{ steps.meta.outputs.tags }}
+      shell: bash
+
+    - name: Debug - see what we have
+      run: |
+        docker inspect myalpine
+        docker run -it myalpine
+      shell: bash
+
