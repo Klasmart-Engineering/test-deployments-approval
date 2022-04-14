@@ -93,7 +93,7 @@ runs:
         platforms: ${{ inputs.platforms }}
         push: ${{ inputs.push_to_registry }}
         tags: ${{ steps.meta.outputs.tags }}
-        file: "${{ inputs.dockerfile_dir }}/${{ inputs.dockerfile_name }}"
+        file: ${{ inputs.dockerfile }}
 
     - name: Debug - metadata output
       run: |

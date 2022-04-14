@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/docker-build-push
         with:
           image_name: myalpine
-          dockerfile: Dockerfile
+          dockerfile: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push_to_registry: false
           ECR_AWS_ACCESS_KEY_ID: ${{ secrets.ECR_AWS_ACCESS_KEY_ID }}
