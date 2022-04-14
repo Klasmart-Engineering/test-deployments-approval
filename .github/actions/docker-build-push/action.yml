@@ -59,7 +59,13 @@ runs:
       id: meta
       uses: docker/metadata-action@v3
       with:
-        images: ${{inputs.ecr_repository}}
+        images: ${{ inputs.ecr_repository }}
+        tags: |
+          prefix= ${{ inputs.ecr_registry }}
+          type=schedule
+          type=ref,event=branch
+          type=ref,event=tag
+          type=ref,event=pr
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -79,7 +85,7 @@ runs:
         context: ${{ inputs.dockerfile_context }}
         platforms: ${{ inputs.platforms }}
         push: false
-        outputs: type=local,dest=build
+        outputs: type=image,push=false
         tags: ${{ steps.meta.outputs.tags }}
         file: "${{ inputs.dockerfile_dir }}/${{ inputs.dockerfile_name }}"
 
