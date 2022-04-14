@@ -79,7 +79,7 @@ runs:
         context: ${{ inputs.dockerfile_context }}
         platforms: ${{ inputs.platforms }}
         push: false
-        outputs: type=image,name=myalpine,push=false
+        outputs: type=local,dest=build
         tags: ${{ steps.meta.outputs.tags }}
         file: "${{ inputs.dockerfile_dir }}/${{ inputs.dockerfile_name }}"
 
@@ -90,7 +90,6 @@ runs:
 
     - name: Debug - see what we have
       run: |
-        docker inspect myalpine
-        docker run -it myalpine
+        find build
       shell: bash
 
